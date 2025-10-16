@@ -2,6 +2,9 @@ package main
 
 import (
 	"log"
+	"os/exec"
+	"strings"
+	"syscall"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -20,12 +23,15 @@ type model struct {
 }
 
 // Helper Functions
+
+// Gets launcher box width from the terminal window width
 func getBoxWidth(windowWidth int) int {
 	// NOTE: -4 to account for padding and border on both sides
 	return min(windowWidth-4, MaxBoxWidth)
 }
 
 // Bubble Tea Model
+
 func initialModel() model {
 	ti := textinput.New()
 	ti.Placeholder = "Type something to launch..."
@@ -50,7 +56,18 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.launcherInput.Width = boxWidth
 	case tea.KeyMsg:
 		switch msg.Type {
-		case tea.KeyEnter, tea.KeyCtrlC, tea.KeyEsc:
+		case tea.KeyEnter:
+			input := strings.TrimSpace(m.launcherInput.Value())
+			if input != "" {
+				parts := strings.Fields(input)
+				if len(parts) > 0 {
+					cmd := exec.Command(parts[0], parts[1:]...)
+					cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+					cmd.Start()
+				}
+			}
+			return m, tea.Quit
+		case tea.KeyCtrlC, tea.KeyEsc:
 			return m, tea.Quit
 		}
 	}
