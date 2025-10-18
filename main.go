@@ -164,7 +164,6 @@ func (m model) Init() tea.Cmd {
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	fmt.Printf("Received message: %T\n", msg)
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.windowWidth = msg.Width
@@ -202,21 +201,23 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case tea.KeyCtrlC, tea.KeyEsc:
 			return m, tea.Quit
 		}
+
+		// If no early return, the Key will be handled by text input.
+		var inputCmd tea.Cmd
+		var completionCmd tea.Cmd
+
+		m.launcherInput, inputCmd = m.launcherInput.Update(msg)
+		input := strings.TrimSpace(m.launcherInput.Value())
+		completionCmd = getCompletionsCmd(input, m.userShell)
+
+		return m, tea.Sequence(inputCmd, completionCmd)
 	case updateCompletionMsg:
 		m.completionList.SetItems(msg.completions)
 		m.completionList.ResetSelected()
 		return m, nil
 	}
 
-	// TODO: This should be in a case, so that something like a blink msg won't trigger a completion update.
-	var inputCmd tea.Cmd
-	var completionCmd tea.Cmd
-
-	m.launcherInput, inputCmd = m.launcherInput.Update(msg)
-	input := strings.TrimSpace(m.launcherInput.Value())
-	completionCmd = getCompletionsCmd(input, m.userShell)
-
-	return m, tea.Sequence(inputCmd, completionCmd)
+	return m, nil
 }
 
 func (m model) View() string {
