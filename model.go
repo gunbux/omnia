@@ -101,14 +101,32 @@ func (m model) View() string {
 	boxWidth := getBoxWidth(m.windowWidth)
 
 	// Styling
-	boxStyle := lipgloss.NewStyle().
+	launcherBoxStyle := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
 		BorderForeground(lipgloss.Color("63")).
 		Padding(1).
 		Width(boxWidth)
 
-	launcherBox := boxStyle.Render(m.launcherInput.View())
-	completionBox := boxStyle.Render(m.completionList.View())
+	var completionBoxStyle lipgloss.Style
+	if m.isCompletionFocused {
+		// Focused: keep current color
+		completionBoxStyle = lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(lipgloss.Color("63")).
+			Padding(1).
+			Width(boxWidth)
+	} else {
+		// Unfocused: grey out
+		completionBoxStyle = lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(lipgloss.Color("240")).
+			Foreground(lipgloss.Color("240")).
+			Padding(1).
+			Width(boxWidth)
+	}
+
+	launcherBox := launcherBoxStyle.Render(m.launcherInput.View())
+	completionBox := completionBoxStyle.Render(m.completionList.View())
 	content := lipgloss.JoinVertical(lipgloss.Left, launcherBox, completionBox)
 
 	return lipgloss.Place(m.windowWidth, m.windowHeight, lipgloss.Center, lipgloss.Center, content)
