@@ -28,10 +28,25 @@ func (cd completionDelegate) Render(w io.Writer, m list.Model, index int, listIt
 		return
 	}
 
-	// TODO: Make this nicer visually
 	completionString := string(completionItem)
+
+	normalStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("250")).
+		PaddingLeft(1)
+
+	selectedStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("15")).
+		Background(lipgloss.Color("63")).
+		Bold(true).
+		PaddingLeft(1)
+
+	prefix := " "
 	if m.Index() == index {
-		completionString = lipgloss.NewStyle().Foreground(lipgloss.Color("229")).Render(completionString)
+		prefix = ">"
+		completionString = selectedStyle.Render(fmt.Sprintf("%s %s", prefix, completionString))
+	} else {
+		completionString = normalStyle.Render(fmt.Sprintf("%s %s", prefix, completionString))
 	}
-	fmt.Fprintln(w, completionString)
+
+	fmt.Fprint(w, completionString)
 }
