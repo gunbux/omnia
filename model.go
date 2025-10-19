@@ -12,11 +12,12 @@ import (
 )
 
 type model struct {
-	launcherInput  textinput.Model
-	completionList list.Model
-	windowWidth    int
-	windowHeight   int
-	userShell      Shell
+	launcherInput       textinput.Model
+	completionList      list.Model
+	isCompletionFocused bool
+	windowWidth         int
+	windowHeight        int
+	userShell           Shell
 }
 
 // Bubble Tea Model
@@ -35,9 +36,10 @@ func initialModel() model {
 	cl.SetFilteringEnabled(false)
 
 	return model{
-		launcherInput:  ti,
-		completionList: cl,
-		userShell:      getUserShell(),
+		launcherInput:       ti,
+		completionList:      cl,
+		isCompletionFocused: false,
+		userShell:           getUserShell(),
 	}
 }
 
@@ -46,19 +48,19 @@ func (m model) Init() tea.Cmd {
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	// TODO: refactor this function, it's too long
+
+	// Completion Focused Behaviour
+	if m.isCompletionFocused {
+		return updateCompletionList(msg, m)
+	}
+
+	// Default Behaviour
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		m.windowWidth = msg.Width
-		m.windowHeight = msg.Height
-		boxWidth := getBoxWidth(m.windowWidth)
-		m.launcherInput.Width = boxWidth
-		m.completionList.SetWidth(boxWidth)
-		// TODO: Make this somewhat dynamic
-		m.completionList.SetHeight(CompletionListHeight)
-		return m, nil
+		return updateWindowSize(msg, m)
 	case tea.KeyMsg:
 		switch msg.Type {
-		// TODO: Check whether we've selected a completion, and if we have, run that instead? Should we make it run or just fill?
 		case tea.KeyEnter:
 			input := strings.TrimSpace(m.launcherInput.Value())
 			if input != "" {
@@ -70,17 +72,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 			}
 			return m, tea.Quit
-		// TODO: When we select a completion, fill it into the input box without update completionList
-		case tea.KeyTab:
-			m.completionList.CursorDown()
+		case tea.KeyTab, tea.KeyShiftTab, tea.KeyUp, tea.KeyDown:
+			m.isCompletionFocused = true
 			return m, nil
-		case tea.KeyShiftTab:
-			m.completionList.CursorUp()
-			return m, nil
-		case tea.KeyUp, tea.KeyDown:
-			var cmd tea.Cmd
-			m.completionList, cmd = m.completionList.Update(msg)
-			return m, cmd
 		case tea.KeyCtrlC, tea.KeyEsc:
 			return m, tea.Quit
 		}
@@ -114,11 +108,7 @@ func (m model) View() string {
 		Width(boxWidth)
 
 	launcherBox := boxStyle.Render(m.launcherInput.View())
-	var completionBox string
-	if len(m.completionList.Items()) > 0 {
-		completionBox = boxStyle.Render(m.completionList.View())
-	}
-
+	completionBox := boxStyle.Render(m.completionList.View())
 	content := lipgloss.JoinVertical(lipgloss.Left, launcherBox, completionBox)
 
 	return lipgloss.Place(m.windowWidth, m.windowHeight, lipgloss.Center, lipgloss.Center, content)
