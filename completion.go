@@ -41,6 +41,7 @@ func (cd completionDelegate) Render(w io.Writer, m list.Model, index int, listIt
 		PaddingLeft(1)
 
 	prefix := " "
+	// TODO: Only highlight if completion box is also focused
 	if m.Index() == index {
 		prefix = ">"
 		completionString = selectedStyle.Render(fmt.Sprintf("%s %s", prefix, completionString))

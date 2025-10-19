@@ -26,6 +26,8 @@ func updateCompletionList(msg tea.Msg, m model) (model, tea.Cmd) {
 		case tea.KeyEsc:
 			m.isCompletionFocused = false
 			return m, nil
+		case tea.KeyCtrlC:
+			return m, tea.Quit
 		}
 	}
 
