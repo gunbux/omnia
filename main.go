@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"os/exec"
@@ -15,9 +16,12 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+// Variable and Constant Definitions
+
 const (
-	MinTerminalWidth = 40 // Minimum size of the terminal for omnia to function
-	MaxBoxWidth      = 80 // Maximum size of the Launcher input box
+	MinTerminalWidth     = 40 // Minimum size of the terminal for omnia to function
+	MaxBoxWidth          = 80 // Maximum size of the Launcher input box
+	CompletionListHeight = 10 // Maximum height of the completion list
 )
 
 type Shell int
@@ -44,6 +48,27 @@ type model struct {
 	windowWidth    int
 	windowHeight   int
 	userShell      Shell
+}
+
+// Type for defining how the compeltion list should render
+
+type completionDelegate struct{}
+
+func (cd completionDelegate) Height() int                             { return 1 }
+func (cd completionDelegate) Spacing() int                            { return 0 }
+func (cd completionDelegate) Update(_ tea.Msg, _ *list.Model) tea.Cmd { return nil }
+func (cd completionDelegate) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
+	completionItem, ok := listItem.(completion)
+	if !ok {
+		return
+	}
+
+	// TODO: Make this nicer visually
+	completionString := string(completionItem)
+	if m.Index() == index {
+		completionString = lipgloss.NewStyle().Foreground(lipgloss.Color("229")).Render(completionString)
+	}
+	fmt.Fprintln(w, completionString)
 }
 
 // Helper Functions
@@ -145,7 +170,7 @@ func initialModel() model {
 	ti.Focus()
 	ti.CharLimit = 512
 
-	cl := list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0)
+	cl := list.New([]list.Item{}, completionDelegate{}, 0, 0)
 	cl.SetShowTitle(false)
 	cl.SetShowStatusBar(false)
 	cl.SetShowPagination(false)
@@ -172,10 +197,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.launcherInput.Width = boxWidth
 		m.completionList.SetWidth(boxWidth)
 		// TODO: Make this somewhat dynamic
-		m.completionList.SetHeight(m.windowHeight - 10)
+		m.completionList.SetHeight(CompletionListHeight)
 		return m, nil
 	case tea.KeyMsg:
 		switch msg.Type {
+		// TODO: Check whether we've selected a completion, and if we have, run that instead? Should we make it run or just fill?
 		case tea.KeyEnter:
 			input := strings.TrimSpace(m.launcherInput.Value())
 			if input != "" {
