@@ -28,7 +28,7 @@ func initialModel() model {
 	ti.Focus()
 	ti.CharLimit = 512
 
-	cl := list.New([]list.Item{}, completionDelegate{}, 0, 0)
+	cl := list.New([]list.Item{}, completionDelegate{isCompletionFocused: false}, 0, 0)
 	cl.SetShowTitle(false)
 	cl.SetShowStatusBar(false)
 	cl.SetShowPagination(false)
@@ -48,8 +48,6 @@ func (m model) Init() tea.Cmd {
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	// TODO: refactor this function, it's too long
-
 	// Completion Focused Behaviour
 	if m.isCompletionFocused {
 		return updateCompletionList(msg, m)
@@ -73,25 +71,22 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, tea.Quit
 		case tea.KeyTab, tea.KeyShiftTab, tea.KeyUp, tea.KeyDown:
-			m.isCompletionFocused = true
-			return m, nil
+			return m, func() tea.Msg { return focusCompletionMsg{true} }
 		case tea.KeyCtrlC, tea.KeyEsc:
 			return m, tea.Quit
 		}
 
 		// If no early return, the Key will be handled by text input.
-		var inputCmd tea.Cmd
-		var completionCmd tea.Cmd
+		return handleGenericKeyInput(msg, m)
 
-		m.launcherInput, inputCmd = m.launcherInput.Update(msg)
-		input := strings.TrimSpace(m.launcherInput.Value())
-		completionCmd = getCompletionsCmd(input, m.userShell)
-
-		return m, tea.Sequence(inputCmd, completionCmd)
+	// Custom Msgs
 	case updateCompletionMsg:
 		m.completionList.SetItems(msg.completions)
 		m.completionList.ResetSelected()
 		return m, nil
+
+	case focusCompletionMsg:
+		return handleCompletionFocus(m, msg.isCompletionFocused)
 	}
 
 	return m, nil

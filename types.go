@@ -24,3 +24,7 @@ const (
 type updateCompletionMsg struct {
 	completions []list.Item
 }
+
+type focusCompletionMsg struct {
+	isCompletionFocused bool
+}
