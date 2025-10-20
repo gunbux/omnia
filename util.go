@@ -11,7 +11,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-// Helper Functions
+// Generic Helper Functions
 
 // Gets launcher box width from the terminal window width
 func getBoxWidth(windowWidth int) int {

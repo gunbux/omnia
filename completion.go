@@ -13,11 +13,11 @@ import (
 type completion string
 
 func (c completion) FilterValue() string { return string(c) }
-func (c completion) Title() string       { return string(c) }
-func (c completion) Description() string { return "" }
 
 // Type defining how the completion list should render
-type completionDelegate struct{}
+type completionDelegate struct {
+	isCompletionFocused bool
+}
 
 func (cd completionDelegate) Height() int                             { return 1 }
 func (cd completionDelegate) Spacing() int                            { return 0 }
@@ -41,8 +41,7 @@ func (cd completionDelegate) Render(w io.Writer, m list.Model, index int, listIt
 		PaddingLeft(1)
 
 	prefix := " "
-	// TODO: Only highlight if completion box is also focused
-	if m.Index() == index {
+	if m.Index() == index && cd.isCompletionFocused {
 		prefix = ">"
 		completionString = selectedStyle.Render(fmt.Sprintf("%s %s", prefix, completionString))
 	} else {
