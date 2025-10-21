@@ -11,11 +11,11 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type Completion string
+type ShellCompletionEntry string
 
-func (c Completion) FilterValue() string { return string(c) }
-func (c Completion) Title() string       { return string(c) }
-func (c Completion) Description() string { return "" }
+func (c ShellCompletionEntry) FilterValue() string { return string(c) }
+func (c ShellCompletionEntry) Title() string       { return string(c) }
+func (c ShellCompletionEntry) Description() string { return "" }
 
 type Shell int
 
@@ -45,8 +45,8 @@ func GetUserShell() Shell {
 	}
 }
 
-// Gets cli autocompletions based on shell type
-func getCliCompletionsCmd(input string, shell Shell) tea.Cmd {
+// GetCliCompletionsCmd gets completions based on shell type
+func GetCliCompletionsCmd(input string, shell Shell) tea.Cmd {
 	return func() tea.Msg {
 		if input == "" {
 			return UpdateCompletionMsg{Items: []list.Item{}}
@@ -78,7 +78,7 @@ func getBashCompletions(input string) []list.Item {
 
 	items := make([]list.Item, len(lines))
 	for i, line := range lines {
-		items[i] = Completion(line)
+		items[i] = ShellCompletionEntry(line)
 	}
 	return items
 }
@@ -103,7 +103,7 @@ func getZshCompletions(input string) []list.Item {
 
 	items := make([]list.Item, len(lines))
 	for i, line := range lines {
-		items[i] = Completion(line)
+		items[i] = ShellCompletionEntry(line)
 	}
 	return items
 }
