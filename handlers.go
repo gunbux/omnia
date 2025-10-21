@@ -6,6 +6,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+// A bunch of handlers for bubble tea Model.
+
 // Function to focus and unfocus the completion list
 func handleCompletionFocus(m model, focus bool) (model, tea.Cmd) {
 	m.isCompletionFocused = focus
@@ -32,7 +34,7 @@ func handleGenericKeyInput(keyMsg tea.KeyMsg, m model) (model, tea.Cmd) {
 }
 
 // This represents behaviour when the completion list is focused
-func updateCompletionList(msg tea.Msg, m model) (model, tea.Cmd) {
+func handleMsgCompletionFocused(msg tea.Msg, m model) (model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.Type {
@@ -63,7 +65,7 @@ func updateCompletionList(msg tea.Msg, m model) (model, tea.Cmd) {
 	return m, nil
 }
 
-func updateWindowSize(msg tea.WindowSizeMsg, m model) (model, tea.Cmd) {
+func handleWindowSize(msg tea.WindowSizeMsg, m model) (model, tea.Cmd) {
 	m.windowWidth = msg.Width
 	m.windowHeight = msg.Height
 	boxWidth := getBoxWidth(m.windowWidth)
