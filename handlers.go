@@ -9,8 +9,8 @@ import (
 // Function to focus and unfocus the completion list
 func handleCompletionFocus(m model, focus bool) (model, tea.Cmd) {
 	m.isCompletionFocused = focus
-	// delegate := appCompletionDelegate{isCompletionFocused: focus}
-	// m.completionList.SetDelegate(delegate)
+	delegate := completionDelegate{isCompletionFocused: focus}
+	m.completionList.SetDelegate(delegate)
 	return m, nil
 }
 

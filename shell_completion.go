@@ -13,6 +13,8 @@ import (
 type completion string
 
 func (c completion) FilterValue() string { return string(c) }
+func (c completion) Title() string       { return string(c) }
+func (c completion) Description() string { return "" }
 
 // Type defining how the completion list should render
 type completionDelegate struct {
@@ -25,30 +27,50 @@ func (cd completionDelegate) Height() int                             { return 1
 func (cd completionDelegate) Spacing() int                            { return 0 }
 func (cd completionDelegate) Update(_ tea.Msg, _ *list.Model) tea.Cmd { return nil }
 func (cd completionDelegate) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
-	completionItem, ok := listItem.(completion)
-	if !ok {
+	// Styles
+	// NormalStyle := lipgloss.NewStyle().
+	// 	Foreground(lipgloss.Color("250")).
+	// 	PaddingLeft(1)
+	SelectedTitle := lipgloss.NewStyle().
+		Border(lipgloss.NormalBorder(), false, false, false, true).
+		BorderForeground(lipgloss.AdaptiveColor{Light: "#F793FF", Dark: "#AD58B4"}).
+		Foreground(lipgloss.AdaptiveColor{Light: "#EE6FF8", Dark: "#EE6FF8"}).
+		Padding(0, 0, 0, 1)
+
+	SelectedDesc := SelectedTitle.
+		Foreground(lipgloss.AdaptiveColor{Light: "#F793FF", Dark: "#AD58B4"})
+
+	DimmedTitle := lipgloss.NewStyle().
+		Foreground(lipgloss.AdaptiveColor{Light: "#A49FA5", Dark: "#777777"}).
+		Padding(0, 0, 0, 2) //nolint:mnd
+
+	DimmedDesc := DimmedTitle.
+		Foreground(lipgloss.AdaptiveColor{Light: "#C2B8C2", Dark: "#4D4D4D"})
+
+	var title, desc string
+
+	if i, ok := listItem.(list.DefaultItem); ok {
+		title = i.Title()
+		desc = i.Description()
+	} else {
 		return
 	}
 
-	completionString := string(completionItem)
-
-	normalStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color("250")).
-		PaddingLeft(1)
-
-	selectedStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color("15")).
-		Background(lipgloss.Color("63")).
-		Bold(true).
-		PaddingLeft(1)
-
-	prefix := " "
 	if m.Index() == index && cd.isCompletionFocused {
-		prefix = ">"
-		completionString = selectedStyle.Render(fmt.Sprintf("%s %s", prefix, completionString))
+		title = SelectedTitle.Render(title)
+		if desc != "" {
+			desc = SelectedDesc.Render(desc)
+		}
 	} else {
-		completionString = normalStyle.Render(fmt.Sprintf("%s %s", prefix, completionString))
+		title = DimmedTitle.Render(title)
+		if desc != "" {
+			desc = DimmedDesc.Render(desc)
+		}
 	}
 
-	fmt.Fprint(w, completionString)
+	if desc != "" {
+		fmt.Fprintf(w, "%s\n%s", title, desc)
+		return
+	}
+	fmt.Fprintf(w, "%s", title)
 }
