@@ -1,11 +1,13 @@
-module omnia
+module github.com/gunbux/omnia
 
 go 1.25.1
 
 require (
+	github.com/adrg/xdg v0.5.3
 	github.com/charmbracelet/bubbles v0.21.0
 	github.com/charmbracelet/bubbletea v1.3.10
 	github.com/charmbracelet/lipgloss v1.1.0
+	gopkg.in/ini.v1 v1.67.0
 )
 
 require (
