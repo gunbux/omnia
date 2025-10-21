@@ -25,6 +25,7 @@ func (d DesktopEntry) Description() string { return d.Desc }
 // GetDesktopCompletions based on applications
 func GetDesktopCompletions() tea.Msg {
 	var items []list.Item
+	seen := make(map[string]bool)
 
 	for _, dir := range xdg.ApplicationDirs {
 		entries, err := os.ReadDir(dir)
@@ -56,6 +57,11 @@ func GetDesktopCompletions() tea.Msg {
 			if name == "" || exec == "" {
 				continue
 			}
+
+			if seen[name] {
+				continue
+			}
+			seen[name] = true
 
 			exec = strings.ReplaceAll(exec, "%U", "")
 			exec = strings.ReplaceAll(exec, "%f", "")
