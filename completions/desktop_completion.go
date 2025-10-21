@@ -24,8 +24,8 @@ func (d DesktopEntry) Description() string { return d.Desc }
 
 // TODO: App completions get should be initial, then we just search through this, using filtervalue?
 
-// GetAppCompletions based on applications
-func GetAppCompletions() tea.Msg {
+// GetDesktopCompletions based on applications
+func GetDesktopCompletions() tea.Msg {
 	var items []list.Item
 
 	for _, dir := range xdg.ApplicationDirs {
