@@ -27,7 +27,9 @@ func handleGenericKeyInput(keyMsg tea.KeyMsg, m model) (model, tea.Cmd) {
 	}
 
 	m.launcherInput, inputCmd = m.launcherInput.Update(keyMsg)
-	completionCmd = func() tea.Msg { return completions.GetDesktopCompletions() }
+	completionCmd = func() tea.Msg { return completions.UpdateCompletionFilterMsg{Input: m.launcherInput.Value()} }
+
+	// NOTE: CompletionCmd handling requires focusCompletionCmd to be handled first
 	return m, tea.Sequence(focusCompletionCmd, inputCmd, completionCmd)
 }
 

@@ -1,7 +1,6 @@
 package completions
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -46,27 +45,22 @@ func GetUserShell() Shell {
 }
 
 // GetCliCompletionsCmd gets completions based on shell type
-func GetCliCompletionsCmd(input string, shell Shell) tea.Cmd {
-	return func() tea.Msg {
-		if input == "" {
-			return UpdateCompletionMsg{Items: []list.Item{}}
-		}
-
-		switch shell {
-		case ZSH:
-			return UpdateCompletionMsg{Items: getZshCompletions(input)}
-		case BASH:
-			return UpdateCompletionMsg{Items: getBashCompletions(input)}
-		case UNKNOWN:
-			fallthrough
-		default:
-			return UpdateCompletionMsg{Items: []list.Item{}}
-		}
+func GetCliCompletionsCmd() tea.Msg {
+	shell := GetUserShell()
+	switch shell {
+	case ZSH:
+		return UpdateCompletionItemsMsg{Items: getZshCompletions()}
+	case BASH:
+		return UpdateCompletionItemsMsg{Items: getBashCompletions()}
+	case UNKNOWN:
+		fallthrough
+	default:
+		return UpdateCompletionItemsMsg{Items: []list.Item{}}
 	}
 }
 
-func getBashCompletions(input string) []list.Item {
-	cmd := exec.Command("bash", "-c", fmt.Sprintf("compgen -c '%s'", input))
+func getBashCompletions() []list.Item {
+	cmd := exec.Command("bash", "-c", "compgen -c")
 	output, err := cmd.Output()
 	if err != nil {
 		return []list.Item{}
@@ -83,13 +77,13 @@ func getBashCompletions(input string) []list.Item {
 	return items
 }
 
-func getZshCompletions(input string) []list.Item {
-	script := fmt.Sprintf(`
+func getZshCompletions() []list.Item {
+	script := `
 		setopt NO_NOMATCH
 		autoload -U compinit
 		compinit -D
-		compgen -c '%s' 2>/dev/null || printf '%%s\n' ${(k)commands[(I)%s*]}
-	`, input, input)
+		print -l ${(k)commands} ${(k)builtins} ${(k)functions} ${(k)aliases} ${(k)reswords}
+	`
 
 	cmd := exec.Command("zsh", "-c", script)
 	output, err := cmd.Output()

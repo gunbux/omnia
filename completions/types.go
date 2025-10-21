@@ -10,8 +10,16 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-type UpdateCompletionMsg struct {
+// NOTE: I've split up the updates just because the current mental model
+// of how we should do completions is pregenerating a list of completions the
+// filtering off that. This may not work if we get into contextual completions.
+
+type UpdateCompletionItemsMsg struct {
 	Items []list.Item
+}
+
+type UpdateCompletionFilterMsg struct {
+	Input string
 }
 
 type CompletionDelegate struct {

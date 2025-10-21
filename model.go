@@ -18,7 +18,6 @@ type model struct {
 	isCompletionFocused bool
 	windowWidth         int
 	windowHeight        int
-	userShell           completions.Shell
 }
 
 // Bubble Tea Model
@@ -34,18 +33,21 @@ func initialModel() model {
 	cl.SetShowStatusBar(false)
 	cl.SetShowPagination(false)
 	cl.SetShowHelp(false)
-	cl.SetFilteringEnabled(false)
+	cl.SetFilteringEnabled(true)
+	cl.SetShowFilter(false)
 
 	return model{
 		launcherInput:       ti,
 		completionList:      cl,
 		isCompletionFocused: false,
-		userShell:           completions.GetUserShell(),
 	}
 }
 
 func (m model) Init() tea.Cmd {
-	return textinput.Blink
+	return tea.Batch(
+		textinput.Blink,
+		func() tea.Msg { return completions.GetDesktopCompletions() },
+	)
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -81,8 +83,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return handleGenericKeyInput(msg, m)
 
 	// Custom Msgs
-	case completions.UpdateCompletionMsg:
+	case completions.UpdateCompletionItemsMsg:
 		m.completionList.SetItems(msg.Items)
+		m.completionList.ResetSelected()
+		return m, nil
+
+	case completions.UpdateCompletionFilterMsg:
+		m.completionList.SetFilterText(msg.Input)
 		m.completionList.ResetSelected()
 		return m, nil
 
