@@ -22,8 +22,6 @@ func (d DesktopEntry) FilterValue() string { return d.ID }
 func (d DesktopEntry) Title() string       { return d.ID }
 func (d DesktopEntry) Description() string { return d.Desc }
 
-// TODO: App completions get should be initial, then we just search through this, using filtervalue?
-
 // GetDesktopCompletions based on applications
 func GetDesktopCompletions() tea.Msg {
 	var items []list.Item
@@ -82,5 +80,5 @@ func GetDesktopCompletions() tea.Msg {
 		}
 	}
 
-	return UpdateCompletionMsg{Items: items}
+	return UpdateCompletionItemsMsg{Items: items}
 }
