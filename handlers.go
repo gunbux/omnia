@@ -2,6 +2,7 @@ package main
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/gunbux/omnia/completions"
 )
 
 // A bunch of handlers for bubble tea Model.
@@ -9,7 +10,7 @@ import (
 // Function to focus and unfocus the completion list
 func handleCompletionFocus(m model, focus bool) (model, tea.Cmd) {
 	m.isCompletionFocused = focus
-	delegate := completionDelegate{isCompletionFocused: focus}
+	delegate := completions.CompletionDelegate{IsCompletionFocused: focus}
 	m.completionList.SetDelegate(delegate)
 	return m, nil
 }
@@ -26,7 +27,7 @@ func handleGenericKeyInput(keyMsg tea.KeyMsg, m model) (model, tea.Cmd) {
 	}
 
 	m.launcherInput, inputCmd = m.launcherInput.Update(keyMsg)
-	completionCmd = func() tea.Msg { return getAppCompletions() }
+	completionCmd = func() tea.Msg { return completions.GetAppCompletions() }
 	return m, tea.Sequence(focusCompletionCmd, inputCmd, completionCmd)
 }
 
@@ -47,8 +48,8 @@ func handleMsgCompletionFocused(msg tea.Msg, m model) (model, tea.Cmd) {
 			return m, cmd
 		case tea.KeyEnter:
 			if selectedItem := m.completionList.SelectedItem(); selectedItem != nil {
-				if entry, ok := selectedItem.(DesktopEntry); ok {
-					m.launcherInput.SetValue(entry.exec)
+				if entry, ok := selectedItem.(completions.DesktopEntry); ok {
+					m.launcherInput.SetValue(entry.Exec)
 				}
 			}
 			m.launcherInput.CursorEnd()
