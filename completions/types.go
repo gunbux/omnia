@@ -1,4 +1,5 @@
-package main
+// Package completions provides the implementation for any completions for the launcher.
+package completions
 
 import (
 	"fmt"
@@ -9,24 +10,18 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-// Type representing a completion item.
-type completion string
-
-func (c completion) FilterValue() string { return string(c) }
-func (c completion) Title() string       { return string(c) }
-func (c completion) Description() string { return "" }
-
-// Type defining how the completion list should render
-type completionDelegate struct {
-	isCompletionFocused bool
+type UpdateCompletionMsg struct {
+	Items []list.Item
 }
 
-// TODO: Make this a generic delegate
+type CompletionDelegate struct {
+	IsCompletionFocused bool
+}
 
-func (cd completionDelegate) Height() int                             { return 1 }
-func (cd completionDelegate) Spacing() int                            { return 0 }
-func (cd completionDelegate) Update(_ tea.Msg, _ *list.Model) tea.Cmd { return nil }
-func (cd completionDelegate) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
+func (cd CompletionDelegate) Height() int                             { return 1 }
+func (cd CompletionDelegate) Spacing() int                            { return 0 }
+func (cd CompletionDelegate) Update(_ tea.Msg, _ *list.Model) tea.Cmd { return nil }
+func (cd CompletionDelegate) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
 	// Styles
 	// NormalStyle := lipgloss.NewStyle().
 	// 	Foreground(lipgloss.Color("250")).
@@ -56,7 +51,7 @@ func (cd completionDelegate) Render(w io.Writer, m list.Model, index int, listIt
 		return
 	}
 
-	if m.Index() == index && cd.isCompletionFocused {
+	if m.Index() == index && cd.IsCompletionFocused {
 		title = SelectedTitle.Render(title)
 		if desc != "" {
 			desc = SelectedDesc.Render(desc)

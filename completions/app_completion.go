@@ -1,6 +1,4 @@
-package main
-
-// TODO: Put all the different type of completions in a folder
+package completions
 
 import (
 	"os"
@@ -14,20 +12,20 @@ import (
 )
 
 type DesktopEntry struct {
-	id          string
-	description string
-	exec        string
-	icon        string // NOTE: this should be a union type of either a name or filepath
+	ID   string
+	Desc string
+	Exec string
+	Icon string // NOTE: this should be a union type of either a name or filepath
 }
 
-func (d DesktopEntry) FilterValue() string { return d.id }
-func (d DesktopEntry) Title() string       { return d.id }
-func (d DesktopEntry) Description() string { return d.description }
+func (d DesktopEntry) FilterValue() string { return d.ID }
+func (d DesktopEntry) Title() string       { return d.ID }
+func (d DesktopEntry) Description() string { return d.Desc }
 
 // TODO: App completions get should be initial, then we just search through this, using filtervalue?
 
-// Get autocompletions based on applications
-func getAppCompletions() tea.Msg {
+// GetAppCompletions based on applications
+func GetAppCompletions() tea.Msg {
 	var items []list.Item
 
 	for _, dir := range xdg.ApplicationDirs {
@@ -61,28 +59,28 @@ func getAppCompletions() tea.Msg {
 				continue
 			}
 
-			replaceInString(&exec, "%U", "")
-			replaceInString(&exec, "%f", "")
-			replaceInString(&exec, "%F", "")
-			replaceInString(&exec, "%u", "")
-			replaceInString(&exec, "%i", "")
-			replaceInString(&exec, "%c", "")
-			replaceInString(&exec, "%k", "")
-			replaceInString(&exec, "%d", "")
-			replaceInString(&exec, "%D", "")
-			replaceInString(&exec, "%N", "")
-			replaceInString(&exec, "%n", "")
+			exec = strings.ReplaceAll(exec, "%U", "")
+			exec = strings.ReplaceAll(exec, "%f", "")
+			exec = strings.ReplaceAll(exec, "%F", "")
+			exec = strings.ReplaceAll(exec, "%u", "")
+			exec = strings.ReplaceAll(exec, "%i", "")
+			exec = strings.ReplaceAll(exec, "%c", "")
+			exec = strings.ReplaceAll(exec, "%k", "")
+			exec = strings.ReplaceAll(exec, "%d", "")
+			exec = strings.ReplaceAll(exec, "%D", "")
+			exec = strings.ReplaceAll(exec, "%N", "")
+			exec = strings.ReplaceAll(exec, "%n", "")
 
 			desktopEntry := DesktopEntry{
-				id:          name,
-				description: description,
-				exec:        exec,
-				icon:        icon,
+				ID:   name,
+				Desc: description,
+				Exec: exec,
+				Icon: icon,
 			}
 
 			items = append(items, desktopEntry)
 		}
 	}
 
-	return updateCompletionMsg{items}
+	return UpdateCompletionMsg{Items: items}
 }

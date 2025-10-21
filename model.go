@@ -9,6 +9,7 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/gunbux/omnia/completions"
 )
 
 type model struct {
@@ -17,7 +18,7 @@ type model struct {
 	isCompletionFocused bool
 	windowWidth         int
 	windowHeight        int
-	userShell           Shell
+	userShell           completions.Shell
 }
 
 // Bubble Tea Model
@@ -28,7 +29,7 @@ func initialModel() model {
 	ti.Focus()
 	ti.CharLimit = 512
 
-	cl := list.New([]list.Item{}, completionDelegate{isCompletionFocused: false}, 0, 0)
+	cl := list.New([]list.Item{}, completions.CompletionDelegate{IsCompletionFocused: false}, 0, 0)
 	cl.SetShowTitle(false)
 	cl.SetShowStatusBar(false)
 	cl.SetShowPagination(false)
@@ -39,7 +40,7 @@ func initialModel() model {
 		launcherInput:       ti,
 		completionList:      cl,
 		isCompletionFocused: false,
-		userShell:           getUserShell(),
+		userShell:           completions.GetUserShell(),
 	}
 }
 
@@ -80,8 +81,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return handleGenericKeyInput(msg, m)
 
 	// Custom Msgs
-	case updateCompletionMsg:
-		m.completionList.SetItems(msg.completions)
+	case completions.UpdateCompletionMsg:
+		m.completionList.SetItems(msg.Items)
 		m.completionList.ResetSelected()
 		return m, nil
 
