@@ -1,9 +1,7 @@
 package main
 
 import (
-	"os/exec"
 	"strings"
-	"syscall"
 
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textinput"
@@ -46,6 +44,7 @@ func initialModel() model {
 func (m model) Init() tea.Cmd {
 	return tea.Batch(
 		textinput.Blink,
+		// func() tea.Msg { return completions.GetCliCompletionsCmd() },
 		func() tea.Msg { return completions.GetDesktopCompletions() },
 	)
 }
@@ -64,14 +63,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.Type {
 		case tea.KeyEnter:
 			input := strings.TrimSpace(m.launcherInput.Value())
-			if input != "" {
-				parts := strings.Fields(input)
-				if len(parts) > 0 {
-					cmd := exec.Command(parts[0], parts[1:]...)
-					cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
-					cmd.Start()
-				}
-			}
+			runProgram(input)
 			return m, tea.Quit
 		case tea.KeyTab, tea.KeyShiftTab, tea.KeyUp, tea.KeyDown:
 			return m, func() tea.Msg { return focusCompletionMsg{true} }

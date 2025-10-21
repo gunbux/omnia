@@ -50,11 +50,15 @@ func handleMsgCompletionFocused(msg tea.Msg, m model) (model, tea.Cmd) {
 			return m, cmd
 		case tea.KeyEnter:
 			if selectedItem := m.completionList.SelectedItem(); selectedItem != nil {
-				if entry, ok := selectedItem.(completions.DesktopEntry); ok {
-					m.launcherInput.SetValue(entry.Exec)
+				switch entry := selectedItem.(type) {
+				case completions.DesktopEntry:
+					runProgram(entry.Exec)
+					return m, tea.Quit
+				case completions.ShellCompletionEntry:
+					m.launcherInput.SetValue(string(entry))
+					m.launcherInput.CursorEnd()
 				}
 			}
-			m.launcherInput.CursorEnd()
 			return m, func() tea.Msg { return focusCompletionMsg{false} }
 		case tea.KeyEsc:
 			return m, func() tea.Msg { return focusCompletionMsg{false} }
