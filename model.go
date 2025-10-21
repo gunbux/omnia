@@ -50,13 +50,13 @@ func (m model) Init() tea.Cmd {
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Completion Focused Behaviour
 	if m.isCompletionFocused {
-		return updateCompletionList(msg, m)
+		return handleMsgCompletionFocused(msg, m)
 	}
 
 	// Default Behaviour
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		return updateWindowSize(msg, m)
+		return handleWindowSize(msg, m)
 	case tea.KeyMsg:
 		switch msg.Type {
 		case tea.KeyEnter:
