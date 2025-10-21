@@ -19,6 +19,8 @@ type completionDelegate struct {
 	isCompletionFocused bool
 }
 
+// TODO: Make this a generic delegate
+
 func (cd completionDelegate) Height() int                             { return 1 }
 func (cd completionDelegate) Spacing() int                            { return 0 }
 func (cd completionDelegate) Update(_ tea.Msg, _ *list.Model) tea.Cmd { return nil }

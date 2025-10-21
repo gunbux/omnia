@@ -28,7 +28,8 @@ func initialModel() model {
 	ti.Focus()
 	ti.CharLimit = 512
 
-	cl := list.New([]list.Item{}, completionDelegate{isCompletionFocused: false}, 0, 0)
+	// cl := list.New([]list.Item{}, appCompletionDelegate{isCompletionFocused: false}, 0, 0)
+	cl := list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0)
 	cl.SetShowTitle(false)
 	cl.SetShowStatusBar(false)
 	cl.SetShowPagination(false)
