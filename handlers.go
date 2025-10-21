@@ -1,8 +1,6 @@
 package main
 
 import (
-	"strings"
-
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -11,8 +9,8 @@ import (
 // Function to focus and unfocus the completion list
 func handleCompletionFocus(m model, focus bool) (model, tea.Cmd) {
 	m.isCompletionFocused = focus
-	delegate := completionDelegate{isCompletionFocused: focus}
-	m.completionList.SetDelegate(delegate)
+	// delegate := appCompletionDelegate{isCompletionFocused: focus}
+	// m.completionList.SetDelegate(delegate)
 	return m, nil
 }
 
@@ -28,8 +26,7 @@ func handleGenericKeyInput(keyMsg tea.KeyMsg, m model) (model, tea.Cmd) {
 	}
 
 	m.launcherInput, inputCmd = m.launcherInput.Update(keyMsg)
-	input := strings.TrimSpace(m.launcherInput.Value())
-	completionCmd = getCompletionsCmd(input, m.userShell)
+	completionCmd = func() tea.Msg { return getAppCompletions() }
 	return m, tea.Sequence(focusCompletionCmd, inputCmd, completionCmd)
 }
 
@@ -49,7 +46,11 @@ func handleMsgCompletionFocused(msg tea.Msg, m model) (model, tea.Cmd) {
 			m.completionList, cmd = m.completionList.Update(msg)
 			return m, cmd
 		case tea.KeyEnter:
-			m.launcherInput.SetValue(string(m.completionList.SelectedItem().(completion)))
+			if selectedItem := m.completionList.SelectedItem(); selectedItem != nil {
+				if entry, ok := selectedItem.(DesktopEntry); ok {
+					m.launcherInput.SetValue(entry.exec)
+				}
+			}
 			m.launcherInput.CursorEnd()
 			return m, func() tea.Msg { return focusCompletionMsg{false} }
 		case tea.KeyEsc:

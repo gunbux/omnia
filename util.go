@@ -39,8 +39,8 @@ func getUserShell() Shell {
 	}
 }
 
-// Gets autocompletions based on shell type
-func getCompletionsCmd(input string, shell Shell) tea.Cmd {
+// Gets cli autocompletions based on shell type
+func getCliCompletionsCmd(input string, shell Shell) tea.Cmd {
 	return func() tea.Msg {
 		if input == "" {
 			return updateCompletionMsg{[]list.Item{}}
@@ -100,4 +100,8 @@ func getZshCompletions(input string) []list.Item {
 		items[i] = completion(line)
 	}
 	return items
+}
+
+func replaceInString(s *string, old, new string) {
+	*s = strings.ReplaceAll(*s, old, new)
 }
