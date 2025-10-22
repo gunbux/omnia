@@ -52,7 +52,7 @@ func handleMsgCompletionFocused(msg tea.Msg, m model) (model, tea.Cmd) {
 			if selectedItem := m.completionList.SelectedItem(); selectedItem != nil {
 				switch entry := selectedItem.(type) {
 				case completions.DesktopEntry:
-					runProgram(entry.Exec)
+					runProgram(entry.Exec, entry.Terminal)
 					return m, tea.Quit
 				case completions.ShellCompletionEntry:
 					m.launcherInput.SetValue(string(entry))

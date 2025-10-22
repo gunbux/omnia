@@ -14,13 +14,20 @@ func getBoxWidth(windowWidth int) int {
 	return min(windowWidth-4, MaxBoxWidth)
 }
 
-func runProgram(input string) {
-	if input != "" {
-		parts := strings.Fields(input)
-		if len(parts) > 0 {
-			cmd := exec.Command(parts[0], parts[1:]...)
-			cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
-			cmd.Start()
-		}
+func runProgram(input string, isTerminal bool) {
+	if input == "" {
+		return
+	}
+
+	// TODO: Support other terminals
+	if isTerminal {
+		input = "kitty -- " + input
+	}
+
+	parts := strings.Fields(input)
+	if len(parts) > 0 {
+		cmd := exec.Command(parts[0], parts[1:]...)
+		cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+		cmd.Start()
 	}
 }

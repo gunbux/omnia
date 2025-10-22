@@ -12,10 +12,11 @@ import (
 )
 
 type DesktopEntry struct {
-	ID   string
-	Desc string
-	Exec string
-	Icon string // NOTE: this should be a union type of either a name or filepath
+	ID       string
+	Desc     string
+	Exec     string
+	Icon     string // NOTE: this should be a union type of either a name or filepath
+	Terminal bool
 }
 
 func (d DesktopEntry) FilterValue() string { return d.ID }
@@ -53,6 +54,8 @@ func GetDesktopCompletions() tea.Msg {
 			description := desktopSection.Key("Comment").String()
 			exec := desktopSection.Key("Exec").String()
 			icon := desktopSection.Key("Icon").String()
+			// TODO: Proper error handling, along all the catchall errors
+			terminal, _ := desktopSection.Key("Terminal").Bool()
 
 			if name == "" || exec == "" {
 				continue
@@ -76,10 +79,11 @@ func GetDesktopCompletions() tea.Msg {
 			exec = strings.ReplaceAll(exec, "%n", "")
 
 			desktopEntry := DesktopEntry{
-				ID:   name,
-				Desc: description,
-				Exec: exec,
-				Icon: icon,
+				ID:       name,
+				Desc:     description,
+				Exec:     exec,
+				Icon:     icon,
+				Terminal: terminal,
 			}
 
 			items = append(items, desktopEntry)
