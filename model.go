@@ -42,10 +42,19 @@ func initialModel() model {
 }
 
 func (m model) Init() tea.Cmd {
+	var completionCmd func() tea.Msg
+	switch DefaultCompletionMode {
+	case CliCompletionMode:
+		completionCmd = func() tea.Msg { return completions.GetCliCompletionsCmd() }
+	case DesktopCompletionMode:
+		completionCmd = func() tea.Msg { return completions.GetDesktopCompletions() }
+	default:
+		completionCmd = func() tea.Msg { return completions.GetDesktopCompletions() }
+	}
+
 	return tea.Batch(
 		textinput.Blink,
-		// func() tea.Msg { return completions.GetCliCompletionsCmd() },
-		func() tea.Msg { return completions.GetDesktopCompletions() },
+		completionCmd,
 	)
 }
 

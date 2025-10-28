@@ -19,9 +19,8 @@ func runProgram(input string, isTerminal bool) {
 		return
 	}
 
-	// TODO: Support other terminals
 	if isTerminal {
-		input = "kitty -- " + input
+		input = TerminalCommand + " -- " + input
 	}
 
 	parts := strings.Fields(input)
