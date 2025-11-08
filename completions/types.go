@@ -14,8 +14,8 @@ var (
 	SelectedBorderColor = lipgloss.AdaptiveColor{Light: "#F793FF", Dark: "#AD58B4"}
 	SelectedTitleColor  = lipgloss.AdaptiveColor{Light: "#EE6FF8", Dark: "#EE6FF8"}
 	SelectedDescColor   = lipgloss.AdaptiveColor{Light: "#F793FF", Dark: "#AD58B4"}
-	DimmedTitleColor    = lipgloss.AdaptiveColor{Light: "#A49FA5", Dark: "#777777"}
-	DimmedDescColor     = lipgloss.AdaptiveColor{Light: "#C2B8C2", Dark: "#4D4D4D"}
+	DimmedTitleColor    = lipgloss.AdaptiveColor{Light: "#A49FA5", Dark: "#AAAAAA"}
+	DimmedDescColor     = lipgloss.AdaptiveColor{Light: "#C2B8C2", Dark: "#888888"}
 )
 
 // NOTE: I've split up the updates just because the current mental model
@@ -43,10 +43,12 @@ func (cd CompletionDelegate) Render(w io.Writer, m list.Model, index int, listIt
 		Border(lipgloss.NormalBorder(), false, false, false, true).
 		BorderForeground(SelectedBorderColor).
 		Foreground(SelectedTitleColor).
+		Bold(true).
 		Padding(0, 0, 0, 1)
 
 	SelectedDesc := SelectedTitle.
-		Foreground(SelectedDescColor)
+		Foreground(SelectedDescColor).
+		Bold(true)
 
 	DimmedTitle := lipgloss.NewStyle().
 		Foreground(DimmedTitleColor).

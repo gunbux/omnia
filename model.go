@@ -12,8 +12,8 @@ import (
 
 const (
 	BorderColorFocused   = "63"
-	BorderColorUnfocused = "240"
-	TextColorUnfocused   = "240"
+	BorderColorUnfocused = "8"   // Brighter grey (standard terminal bright black)
+	TextColorUnfocused   = "245" // Lighter grey for better readability
 )
 
 type model struct {
@@ -112,22 +112,32 @@ func (m model) View() string {
 	boxWidth := getBoxWidth(m.windowWidth)
 
 	// Styling
-	launcherBoxStyle := lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder()).
-		BorderForeground(lipgloss.Color(BorderColorFocused)).
-		Padding(1).
-		Width(boxWidth)
-
-	var completionBoxStyle lipgloss.Style
-	if m.isCompletionFocused {
-		// Focused: keep current color
-		completionBoxStyle = lipgloss.NewStyle().
+	var launcherBoxStyle lipgloss.Style
+	if !m.isCompletionFocused {
+		launcherBoxStyle = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
 			BorderForeground(lipgloss.Color(BorderColorFocused)).
+			Bold(true).
 			Padding(1).
 			Width(boxWidth)
 	} else {
-		// Unfocused: grey out
+		launcherBoxStyle = lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(lipgloss.Color(BorderColorUnfocused)).
+			Foreground(lipgloss.Color(TextColorUnfocused)).
+			Padding(1).
+			Width(boxWidth)
+	}
+
+	var completionBoxStyle lipgloss.Style
+	if m.isCompletionFocused {
+		completionBoxStyle = lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(lipgloss.Color(BorderColorFocused)).
+			Bold(true).
+			Padding(1).
+			Width(boxWidth)
+	} else {
 		completionBoxStyle = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
 			BorderForeground(lipgloss.Color(BorderColorUnfocused)).
