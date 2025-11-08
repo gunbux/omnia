@@ -79,6 +79,14 @@ func handleWindowSize(msg tea.WindowSizeMsg, m model) (model, tea.Cmd) {
 	boxWidth := getBoxWidth(m.windowWidth)
 	m.launcherInput.Width = boxWidth
 	m.completionList.SetWidth(boxWidth)
-	m.completionList.SetHeight(CompletionListHeight)
+
+	// Calculate completion list height based on window height
+	// Reserve space for launcher input (3 lines) and some padding
+	completionHeight := (m.windowHeight - 8) / 2
+
+	// Height is 3 < h < 10
+	completionHeight = min(max(completionHeight, 3), CompletionListHeight)
+	m.completionList.SetHeight(completionHeight)
+
 	return m, nil
 }
