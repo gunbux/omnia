@@ -10,6 +10,12 @@ import (
 	"github.com/gunbux/omnia/completions"
 )
 
+const (
+	BorderColorFocused   = "63"
+	BorderColorUnfocused = "240"
+	TextColorUnfocused   = "240"
+)
+
 type model struct {
 	launcherInput       textinput.Model
 	completionList      list.Model
@@ -108,7 +114,7 @@ func (m model) View() string {
 	// Styling
 	launcherBoxStyle := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
-		BorderForeground(lipgloss.Color("63")).
+		BorderForeground(lipgloss.Color(BorderColorFocused)).
 		Padding(1).
 		Width(boxWidth)
 
@@ -117,15 +123,15 @@ func (m model) View() string {
 		// Focused: keep current color
 		completionBoxStyle = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color("63")).
+			BorderForeground(lipgloss.Color(BorderColorFocused)).
 			Padding(1).
 			Width(boxWidth)
 	} else {
 		// Unfocused: grey out
 		completionBoxStyle = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color("240")).
-			Foreground(lipgloss.Color("240")).
+			BorderForeground(lipgloss.Color(BorderColorUnfocused)).
+			Foreground(lipgloss.Color(TextColorUnfocused)).
 			Padding(1).
 			Width(boxWidth)
 	}
