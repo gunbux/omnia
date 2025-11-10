@@ -12,11 +12,12 @@ import (
 )
 
 type DesktopEntry struct {
-	ID       string
-	Desc     string
-	Exec     string
-	Icon     string // NOTE: this should be a union type of either a name or filepath
-	Terminal bool
+	ID          string
+	Desc        string
+	Exec        string
+	Icon        string // NOTE: this should be a union type of either a name or filepath
+	Terminal    bool
+	DesktopFile string
 }
 
 func (d DesktopEntry) FilterValue() string { return d.ID }
@@ -79,11 +80,12 @@ func GetDesktopCompletions() tea.Msg {
 			exec = strings.ReplaceAll(exec, "%n", "")
 
 			desktopEntry := DesktopEntry{
-				ID:       name,
-				Desc:     description,
-				Exec:     exec,
-				Icon:     icon,
-				Terminal: terminal,
+				ID:          name,
+				Desc:        description,
+				Exec:        exec,
+				Icon:        icon,
+				Terminal:    terminal,
+				DesktopFile: desktopFile,
 			}
 
 			items = append(items, desktopEntry)

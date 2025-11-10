@@ -14,6 +14,7 @@ func getBoxWidth(windowWidth int) int {
 	return min(windowWidth-4, MaxBoxWidth)
 }
 
+// Handles launching of the program
 func runProgram(input string, isTerminal bool) {
 	if input == "" {
 		return

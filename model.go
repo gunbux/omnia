@@ -79,7 +79,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case tea.KeyEnter:
 			input := strings.TrimSpace(m.launcherInput.Value())
 			// TODO: This behaviour is kinda hacky, is there a better way to write this?
-			runProgram(input, false)
+			handleQuickRun(m, input)
 			return m, tea.Quit
 		case tea.KeyTab, tea.KeyShiftTab, tea.KeyUp, tea.KeyDown:
 			return m, func() tea.Msg { return focusCompletionMsg{true} }

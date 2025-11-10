@@ -73,6 +73,17 @@ func handleMsgCompletionFocused(msg tea.Msg, m model) (model, tea.Cmd) {
 	return m, nil
 }
 
+// If completion isn't focused, we run desktop program if it exists, otherwise, treat the input as a shell command
+func handleQuickRun(m model, input string) {
+	if selectedItem := m.completionList.SelectedItem(); selectedItem != nil {
+		switch entry := selectedItem.(type) {
+		case completions.DesktopEntry:
+			runProgram(entry.Exec, entry.Terminal)
+		}
+	}
+	runProgram(input, false)
+}
+
 func handleWindowSize(msg tea.WindowSizeMsg, m model) (model, tea.Cmd) {
 	m.windowWidth = msg.Width
 	m.windowHeight = msg.Height
