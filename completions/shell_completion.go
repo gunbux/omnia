@@ -70,9 +70,18 @@ func getBashCompletions() []list.Item {
 		return []list.Item{}
 	}
 
-	items := make([]list.Item, len(lines))
-	for i, line := range lines {
-		items[i] = ShellCompletionEntry(line)
+	return toShellItems(lines)
+}
+
+// toShellItems converts command names to list items, dropping zsh completion
+// helpers (_foo) which are not meant to be run directly.
+func toShellItems(lines []string) []list.Item {
+	items := make([]list.Item, 0, len(lines))
+	for _, line := range lines {
+		if line == "" || strings.HasPrefix(line, "_") {
+			continue
+		}
+		items = append(items, ShellCompletionEntry(line))
 	}
 	return items
 }
@@ -95,9 +104,5 @@ func getZshCompletions() []list.Item {
 		return []list.Item{}
 	}
 
-	items := make([]list.Item, len(lines))
-	for i, line := range lines {
-		items[i] = ShellCompletionEntry(line)
-	}
-	return items
+	return toShellItems(lines)
 }

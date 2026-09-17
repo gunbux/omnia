@@ -8,7 +8,11 @@ Built with the modern [Bubble Tea](https://github.com/charmbracelet/bubbletea) T
 
 - **🔍 Fuzzy Search**: Find what you need with intelligent, typo-tolerant search
 - **🖥️ Desktop Applications**: Launch any installed GUI application
-- **⚡ CLI Commands**: Execute terminal commands and utilities
+- **⚡ Shell Commands**: `>` runs any command in a new terminal, with completion
+- **📁 File Finder**: `/`, `~` or `f ` searches your files and completes paths
+- **🧮 Calculator**: type `2^10 + 0xff` or `sqrt(2)*pi` and get the answer inline
+- **💱 Currency Converter**: `100 usd to sgd`, `€50`, `usd to jpy` with live rates
+- **🤖 Quick AI Answers**: `? how do I untar a .tar.xz` streams an answer from Claude
 - **⌨️ Keyboard-First**: Navigate entirely with keyboard shortcuts
 - **🎨 Clean Interface**: Minimal, distraction-free design
 - **🚀 Lightning Fast**: Built in Go for maximum performance
@@ -31,12 +35,38 @@ Launch Omnia from your terminal:
 ./omnia
 ```
 
-### Navigation
-- **Type**: Start typing to search and filter results
-- **Tab**: Switch between input and results
-- **Arrow Keys**: Navigate through completions
-- **Enter**: Launch the selected item
-- **Esc**: Exit Omnia
+### Modes
+
+Omnia picks a mode from what you type. The chip on the left of the input shows the active mode.
+
+| Type | Mode | What happens |
+|------|------|--------------|
+| `firefox` | **Apps** | Fuzzy-searches installed applications. Enter launches the selection, or runs the text as a command if nothing matches. |
+| `> htop` | **Shell** | Completes command names. Enter runs the command in a new terminal (`kitty`). |
+| `/etc/ho`, `~/Doc`, `f report` | **Files** | `/` and `~` complete paths like a shell; `f ` searches file names under your home directory (uses `fd` when installed). |
+| `2^10 + 0xff`, `= 5!` | **Calc** | Arithmetic with `+ - * / ^ % !`, functions (`sqrt`, `sin`, `log`, `min`, …), constants (`pi`, `e`), hex/binary literals and `k`/`m` suffixes. `=` forces calc mode. |
+| `100 usd to sgd`, `$50`, `€1,250 in gbp` | **Currency** | Converts using live rates from open.er-api.com (cached for 12 hours, works offline with the last rates). Without a target it shows a few major currencies. |
+| `? how do I untar a .tar.xz`, `ai …` | **Ask AI** | Streams a short answer from Claude. Enter copies the answer and closes; Esc goes back. |
+
+### Keys
+
+| Key | Action |
+|-----|--------|
+| **Enter** | Launch / run / open / copy, depending on the mode |
+| **↑ ↓** / **Tab** / **Shift+Tab** | Move through results |
+| **→** (at end of input) | Complete the selected path or command into the input |
+| **Ctrl+Y** | Copy the selected result (file path, number, amount, answer) |
+| **Ctrl+T** | Files mode: open a terminal in the selected directory |
+| **Esc** | Quit (or go back from an AI answer) |
+
+### AI backend
+
+The AI mode needs one of:
+
+- the [Claude Code](https://claude.com/claude-code) CLI on your `PATH`, which reuses your existing login, or
+- `ANTHROPIC_API_KEY` (or `ANTHROPIC_AUTH_TOKEN`) set, which uses the Anthropic API directly.
+
+Optional overrides: `OMNIA_AI_BACKEND=api|claude` to force a backend and `OMNIA_AI_MODEL` to pick a model (default `claude-opus-5`).
 
 ## 🔧 Hyprland Integration
 

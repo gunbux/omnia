@@ -8,14 +8,15 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/x/ansi"
 )
 
 var (
 	SelectedBorderColor = lipgloss.AdaptiveColor{Light: "#F793FF", Dark: "#AD58B4"}
 	SelectedTitleColor  = lipgloss.AdaptiveColor{Light: "#EE6FF8", Dark: "#EE6FF8"}
 	SelectedDescColor   = lipgloss.AdaptiveColor{Light: "#F793FF", Dark: "#AD58B4"}
-	DimmedTitleColor    = lipgloss.AdaptiveColor{Light: "#A49FA5", Dark: "#AAAAAA"}
-	DimmedDescColor     = lipgloss.AdaptiveColor{Light: "#C2B8C2", Dark: "#888888"}
+	DimmedTitleColor    = lipgloss.AdaptiveColor{Light: "#A49FA5", Dark: "#CCCCCC"}
+	DimmedDescColor     = lipgloss.AdaptiveColor{Light: "#C2B8C2", Dark: "#777777"}
 )
 
 // NOTE: I've split up the updates just because the current mental model
@@ -30,57 +31,48 @@ type UpdateCompletionFilterMsg struct {
 	Input string
 }
 
-type CompletionDelegate struct {
-	IsCompletionFocused bool
-}
+// CompletionDelegate renders each result on a single line: the title,
+// followed by a dimmed description that is truncated to fit.
+type CompletionDelegate struct{}
 
 func (cd CompletionDelegate) Height() int                             { return 1 }
 func (cd CompletionDelegate) Spacing() int                            { return 0 }
 func (cd CompletionDelegate) Update(_ tea.Msg, _ *list.Model) tea.Cmd { return nil }
 func (cd CompletionDelegate) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
-	// Styles
-	SelectedTitle := lipgloss.NewStyle().
-		Border(lipgloss.NormalBorder(), false, false, false, true).
-		BorderForeground(SelectedBorderColor).
-		Foreground(SelectedTitleColor).
-		Bold(true).
-		Padding(0, 0, 0, 1)
-
-	SelectedDesc := SelectedTitle.
-		Foreground(SelectedDescColor).
-		Bold(true)
-
-	DimmedTitle := lipgloss.NewStyle().
-		Foreground(DimmedTitleColor).
-		Padding(0, 0, 0, 2) //nolint:mnd
-
-	DimmedDesc := DimmedTitle.
-		Foreground(DimmedDescColor)
-
-	var title, desc string
-
-	if i, ok := listItem.(list.DefaultItem); ok {
-		title = i.Title()
-		desc = i.Description()
-	} else {
+	i, ok := listItem.(list.DefaultItem)
+	if !ok {
 		return
 	}
+	title, desc := i.Title(), i.Description()
+	selected := m.Index() == index
 
-	if m.Index() == index && cd.IsCompletionFocused {
-		title = SelectedTitle.Render(title)
-		if desc != "" {
-			desc = SelectedDesc.Render(desc)
-		}
+	var titleStyle, descStyle lipgloss.Style
+	if selected {
+		titleStyle = lipgloss.NewStyle().
+			Border(lipgloss.NormalBorder(), false, false, false, true).
+			BorderForeground(SelectedBorderColor).
+			Foreground(SelectedTitleColor).
+			Bold(true).
+			Padding(0, 0, 0, 1)
+		descStyle = lipgloss.NewStyle().Foreground(SelectedDescColor)
 	} else {
-		title = DimmedTitle.Render(title)
-		if desc != "" {
-			desc = DimmedDesc.Render(desc)
-		}
+		titleStyle = lipgloss.NewStyle().
+			Foreground(DimmedTitleColor).
+			Padding(0, 0, 0, 2) //nolint:mnd
+		descStyle = lipgloss.NewStyle().Foreground(DimmedDescColor)
 	}
 
+	width := m.Width()
+	if width <= 0 {
+		width = 80
+	}
+	titleText := ansi.Truncate(title, max(width-4, 8), "…")
+	line := titleStyle.Render(titleText)
 	if desc != "" {
-		fmt.Fprintf(w, "%s\n%s", title, desc)
-		return
+		remaining := width - lipgloss.Width(line) - 2
+		if remaining > 6 {
+			line += "  " + descStyle.Render(ansi.Truncate(desc, remaining, "…"))
+		}
 	}
-	fmt.Fprintf(w, "%s", title)
+	fmt.Fprint(w, line)
 }
